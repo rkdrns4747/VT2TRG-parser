@@ -16,18 +16,15 @@
  *******************************************************************************/
 package com.vt2trg.utils;
 import com.vt2trg.interfaces.IModule;
-import com.vt2trg.main.Main;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import java.io.File;
 
-public class ClickTriggerModule implements IModule {
-    private final JavaPlugin plugin = Main.getInstance();
-    private final File trgDefaultPath = new File(plugin.getDataFolder().getPath() +"/ClickTrigger"); //ClickTrigger default
+public class DefaultConvertModule implements IModule {
 
+    public DefaultConvertModule(){
+    }
 
     @Override
     public File getDefaultTarget() {
-        return trgDefaultPath;
+        return null;
     }
 }

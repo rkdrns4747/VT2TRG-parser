@@ -25,6 +25,8 @@ public class Main extends JavaPlugin {
                 Bukkit.getConsoleSender().sendMessage("TriggerReactor: "+ (trgAvailablity ? ChatColor.GREEN +"true\n" : Color.fromRGB(255, 5, 5) + "false\n"));
                 Bukkit.getConsoleSender().sendMessage("VariableTriggers: " + (vtAvailabilty ? ChatColor.GREEN +"true\n" : ChatColor.RED + "false\n"));
                 Bukkit.getPluginManager().disablePlugin(this);
+            }else{
+                Bukkit.getConsoleSender().sendMessage(defaultPrefix + ChatColor.GREEN +"Plugin successfully loaded.");
             }
         }, 60L);
     }
