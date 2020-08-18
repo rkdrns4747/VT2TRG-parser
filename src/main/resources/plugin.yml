@@ -1,0 +1,20 @@
+name: VT2TRG-parser
+main: com.vt2trg.main.Main
+version: 1.0.2
+author: Dr_Romantic
+softdepend:
+  - TriggerReactor
+  - VariableTriggers
+commands:
+  vt2trg:
+    aliases:
+      - vtrg
+    description: YES
+permissions:
+  vttotrg.admin:
+    description: Alternative permission for convertion
+command:
+  vt2trg:
+    aliases:
+      - vtrg
+    description: YES
