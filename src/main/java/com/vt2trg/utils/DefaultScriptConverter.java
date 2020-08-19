@@ -17,14 +17,18 @@
 package com.vt2trg.utils;
 import com.vt2trg.interfaces.IModule;
 import java.io.File;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-public class DefaultConvertModule implements IModule {
-
-    public DefaultConvertModule(){
+public class DefaultScriptConverter{
+    private Set<String> EXECUTOR_LIST = new HashSet<>();
+    public List<String> script;
+    public DefaultScriptConverter(List<String> script){
+        this.script = script;
     }
-
-    @Override
-    public File getDefaultTarget() {
+    public List<String> convert(){
+            //TODO - implement vt -> trg script converter
         return null;
     }
 }
