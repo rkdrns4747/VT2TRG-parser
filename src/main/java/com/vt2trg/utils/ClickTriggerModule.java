@@ -16,21 +16,14 @@
  *******************************************************************************/
 package com.vt2trg.utils;
 import com.vt2trg.interfaces.IModule;
-import com.vt2trg.main.Main;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 public class ClickTriggerModule extends Module implements IModule {
     private YamlConfiguration fromYaml = new YamlConfiguration();

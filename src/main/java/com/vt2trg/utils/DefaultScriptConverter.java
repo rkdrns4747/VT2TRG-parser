@@ -15,8 +15,6 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 package com.vt2trg.utils;
-import com.vt2trg.interfaces.IModule;
-import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

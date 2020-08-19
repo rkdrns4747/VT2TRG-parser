@@ -1,6 +1,5 @@
 package com.vt2trg.utils;
 
-import com.vt2trg.interfaces.IModule;
 import com.vt2trg.main.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
