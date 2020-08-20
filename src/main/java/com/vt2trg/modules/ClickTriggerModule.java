@@ -14,8 +14,10 @@
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
-package com.vt2trg.utils;
+package com.vt2trg.modules;
 import com.vt2trg.interfaces.IModule;
+import com.vt2trg.utils.FileUtil;
+import com.vt2trg.enums.VtTriggerType;
 import org.bukkit.Location;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -29,8 +31,8 @@ public class ClickTriggerModule extends Module implements IModule {
     private YamlConfiguration fromYaml = new YamlConfiguration();
     private File to;
     public ClickTriggerModule() throws IOException, InvalidConfigurationException {
-        fromYaml.load(new File(super.variableTriggers.getDataFolder().getPath() +"/ClickTriggers.yml"));
-        to = new File(super.trgDefaultPath.getPath() +"/ClickTrigger");
+        fromYaml.load(FileUtil.getVtScript(VtTriggerType.CLICK));
+        to = new File(Objects.requireNonNull(FileUtil.getTrgDataFolder()).getPath() +"/ClickTrigger");
     }
     public ClickTriggerModule(String fromPath, String toPath) throws IOException, InvalidConfigurationException {
         fromYaml.load(new File(fromPath));
