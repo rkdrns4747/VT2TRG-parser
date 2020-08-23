@@ -16,11 +16,11 @@
  *******************************************************************************/
 package com.vt2trg.modules;
 import com.vt2trg.enums.Executors;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.material.MaterialData;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class DefaultScriptConverter{
     public List<String> script;
@@ -28,13 +28,11 @@ public class DefaultScriptConverter{
         this.script = script;
     }
     public List<String> convert(){
-        String testString = "@PLAYER";
-        String a = Executors.valueOf(testString.substring(1)).getExecutorAsTrg();
         //TODO - implement vt -> trg script converter
         return null;
     }
 
-    public String convert(int line){
+    public List<String> convertLine(int line){
         String str = script.get(line);
         if(!str.startsWith("@"))
             return null;
@@ -46,7 +44,7 @@ public class DefaultScriptConverter{
         return null;
     }
 
-    public String convertPlaceholder(String placeholder, String parent){
+    public List<String> convertPlaceholder(String placeholder, String parent){
         // <hello:<hi:<yes>>> layering (X)
         // <hello:<yes>:<hi>> multiplicity
         // <hello:<yes>gogo> string-placeholder form
@@ -63,6 +61,19 @@ public class DefaultScriptConverter{
             partial = temp;
         }
 
+        return null;
+    }
+
+
+    @SuppressWarnings("deprecation")
+    public static String convertMaterial(String value) {
+        String[] sep = value.split(":");
+        int id = Integer.parseInt(sep[0]);
+        byte data = Byte.parseByte(sep[1]);
+        for(Material i : EnumSet.allOf(Material.class)){
+            if(i.getId() == id)
+                return Bukkit.getUnsafe().fromLegacy(new MaterialData(i, data)).name();
+        }
         return null;
     }
 }
