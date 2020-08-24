@@ -23,27 +23,41 @@ import org.bukkit.material.MaterialData;
 import java.util.*;
 
 public class DefaultScriptConverter{
-    public List<String> script;
+    private List<String> script;
+    private List<String> newScript;
+    private Map<Integer, IfBuilder> tempIfBuilder;
+    private SwitchBuilder tempSwitchBuilder;
+    private int ifCount = 0;
     public DefaultScriptConverter(List<String> script){
         this.script = script;
     }
+
     public List<String> convert(){
-        //TODO - implement vt -> trg script converter
-        return null;
-    }
 
-    public List<String> convertLine(int line){
-        String str = script.get(line);
-        if(!str.startsWith("@"))
-            return null;
-        else {
-            Executors currentEx = Executors.valueOf(!str.contains(" ") ? str.substring(1,str.indexOf(" ")) : str.substring(1));
-            List<Executors.Attribute> grammar = currentEx.getGrammar();
+        int index = 0;
+        while(index < script.size()) {
+            String str = script.get(index);
+            if (!str.startsWith("@")) {
+                newScript.add("//" + script.get(index));
+                index++;
+                continue;
+            } else {
+                String[] parts = str.split(" ");
+                if (parts[0].equals("@IF")) {
+                    IfBuilder ifBuilder = new IfBuilder(index, script.subList(index, script.size()), Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)));
+                    Map<String, Object> result = ifBuilder.build();
+                    //List<String> result = this.handleIfProcess(parts[0].replace("@", ""), Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)));
+                } else if (parts[0].equals("@SWITCH")) {
+                    SwitchBuilder switchBuilder = new SwitchBuilder(index, script.subList(index, script.size()), Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)));
+                    Map<String, Object> result = switchBuilder.build();
+                    //append result to newScript
+
+                }
+            }
         }
-
         return null;
     }
-
+/*
     public List<String> convertPlaceholder(String placeholder, String parent){
         // <hello:<hi:<yes>>> layering (X)
         // <hello:<yes>:<hi>> multiplicity
@@ -62,8 +76,7 @@ public class DefaultScriptConverter{
         }
 
         return null;
-    }
-
+    }*/
 
     @SuppressWarnings("deprecation")
     public static String convertMaterial(String value) {
@@ -75,5 +88,76 @@ public class DefaultScriptConverter{
                 return Bukkit.getUnsafe().fromLegacy(new MaterialData(i, data)).name();
         }
         return null;
+    }
+
+/*@IF [i/s/b] [변수명/문자열/정수/True/False] [=/!=/</>/<=/>=] [변수명/문자열/정수/True/False]
+        '만약 [i/s/b]의 직업을 가진 [변수값(좌)]가 [변수값(우)]와의 [부등호]가 일치할 때, 다음 구문으로 넘어간다.'
+
+    @ELSE
+        'IF의 값에 일치하지 않는 경우 실행되는 블록'
+
+    @AND [i/s/b] [변수명/문자열/정수/True/False] [=/!=/</>/<=/>=] [변수명/문자열/정수/True/False]
+        '&&' 의미
+
+    @OR [i/s/b] [변수명/문자열/정수/True/False] [=/!=/</>/<=/>=] [변수명/문자열/정수/True/False]
+        '||' 의미
+
+    @ENDIF
+        '조건블록 종료'*/
+
+    /*
+     * Handles one super parent block.
+     * Most VT has multi-layered @IF statement, just like TR.
+     * HOWEVER, VT does not handle AND and OR with &&, ||, but with separated executors, @AND and @OR.
+     * In other words, there's no way to interpret @IF, @AND, @OR, @ELSE, @ENDIF line by line.
+     * And also, as I said, @IF block can contain more than two @IFs. What this means is that IfBuilder would be `recursive Object`.
+     * variables:
+     *  - ifCount: one @IF block can have multiple @IF statements. So, this variable initialized as 0 at first,
+     *             and whenever it meets @IF, the value will increase 1, which is contrary to decreasing 1 whenever it meets @ENDIF.
+     *             If its value reaches 0, then this IfBuilder will return the whole interpreted @IF block.
+     *  - leastCode: codes after starting @IF block. As soon as current IfBuilder interpretation ends(ifCount reaches 0),
+     *               leastCode should be trimmed to being have lines after end of if block(@ENDIF).
+     *  - resultMap: map that has result String list, startIndex, lastIndex, leastCode.
+     *
+     */
+    private class IfBuilder {
+        private int startIndex;
+        private List<String> leastCode;
+        private Map<String, Object> resultMap = new HashMap<>();
+        private IfBuilder(int currentIndex, List<String> least, List<String> args){
+            this.startIndex = currentIndex;
+            this.leastCode = least; //will contain also its line itself
+
+        }
+
+        private Map<String, Object> build(){
+
+            return null;
+        }
+    }
+
+    /*
+    @SWITCH [i/s/b] [변수]
+        IF와 비슷하지만, 해당 변수 속에 @CASE안의 것이 있는가 확인합니다.
+        IF문처럼, 끝에는 @ENDSWITCH가 반드시 써 져야 합니다.
+
+    @CASE [값]
+        @SWITCH의 표적이 된 변수 속에 @CASE안에 있는 단어가 들어 있다면, 해당 CASE 구문을 실행시킵니다.
+
+    @ENDSWITCH
+        SWITCH 종료문 */
+    private class SwitchBuilder {
+        private int ifCount;
+        private int startIndex;
+        private List<String> leastCode;
+        private SwitchBuilder(int currentIndex, List<String> least, List<String> args){
+            this.startIndex = currentIndex;
+            this.leastCode = least; //will contain also its line itself
+        }
+
+        private Map<String, Object> build(){
+
+            return null;
+        }
     }
 }
