@@ -38,7 +38,7 @@ public class DefaultScriptConverter{
         while(index < script.size()) {
             String str = script.get(index);
             if (!str.startsWith("@")) {
-                newScript.add("//" + script.get(index));
+                newScript.add("//" + str);
                 index++;
                 continue;
             } else {
@@ -52,8 +52,58 @@ public class DefaultScriptConverter{
                     Map<String, Object> result = switchBuilder.build();
                     //append result to newScript
 
+                } else {
+                    Executors executor;
+                    Map<Integer, Map<Executors.Attribute, String>> partialMap = new HashMap<>();
+                    try{
+                        executor = Executors.valueOf(parts[0].replaceFirst("@", ""));
+                    }catch (IllegalArgumentException | NullPointerException ex){
+                        executor = Executors.INVALID;
+                    }
+
+                    if(executor == Executors.INVALID){
+                        newScript.add("//" + script.get(index));
+                        index++;
+                        continue;
+                    }
+                    List<Executors.Attribute> grammar = executor.getGrammar();
+                    for(int i = 1; i < parts.length; i++){
+                        Map<Executors.Attribute, String> temp = new HashMap<>();
+                        temp.put(grammar.get(i - 1), parts[i]);
+                        partialMap.put(i, temp);
+                        temp.clear();
+                    }
+                    for (int now : partialMap.keySet()) {
+                        partial(partialMap.get(now), parts);
+                    }
                 }
             }
+        }
+        return null;
+    }
+
+    private List<String> partial(Map<Executors.Attribute, String> map, String[] whole){
+        Executors.Attribute currentGrammar = (Executors.Attribute) map.keySet().toArray()[0];
+        String part = map.get(currentGrammar);
+        switch (currentGrammar){
+            case OBJECT:
+                //TODO
+            case STRING:
+                //TODO
+            case BOOLEAN:
+                //TODO
+            case DOUBLE:
+                //TODO
+            case STRINGS:
+                //TODO
+            case SEPARATION_COLON:
+                //TODO
+            case ENCHANTMENTS:
+                //TODO
+            case VARIABLE:
+                //TODO
+            case LOCATION:
+                //TODO
         }
         return null;
     }

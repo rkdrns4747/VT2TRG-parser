@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.List;
 
 public enum Executors {
+    INVALID("INVALID", false),
+
     QUIET("//@QUIET $0 $1", true, Attribute.STRING, Attribute.INT),
     BROADCAST("#BROADCAST $0", false, Attribute.STRING),
     PLAYER("#MESSAGE $0 $1", false, Attribute.STRING),
@@ -194,4 +196,5 @@ public enum Executors {
         }
      **/
     }
+
 }
