@@ -195,6 +195,18 @@ public enum Executors {
             return this.nullable;
         }
      **/
+        public static Executors.Attribute fromAliases(char ch){
+            switch (ch){
+                case 'i':
+                    return INT;
+                case 's':
+                    return STRING;
+                case 'b':
+                    return BOOLEAN;
+            }
+
+            return OBJECT;
+        }
     }
 
 }
