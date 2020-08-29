@@ -203,9 +203,9 @@ public enum Executors {
                     return STRING;
                 case 'b':
                     return BOOLEAN;
+                default:
+                    return OBJECT;
             }
-
-            return OBJECT;
         }
     }
 

@@ -44,7 +44,7 @@ public class DefaultScriptConverter{
                 String[] parts = str.split(" ");
                 if (parts[0].matches("@IF | @OR | @AND")) {
                     String[] args = (String[]) Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)).toArray();
-                    String operator = "";
+                    String operator;
                     List<EnhancedMap> partialMap = new ArrayList<EnhancedMap>();
                     if(args[0].matches("[isb]")) {
                         partialMap.add(new EnhancedMap(1, Executors.Attribute.fromAliases(args[0].charAt(0)), args[1]));
@@ -55,6 +55,8 @@ public class DefaultScriptConverter{
                                 operator = "==";
                             case "<": case ">": case "!=": case "<=": case ">=":
                                 operator = args[2];
+                            default:
+                                operator = "";
                         }
                         String argOutput = result.get(1) + " " + operator + " " + result.get(3);
                     }
@@ -98,11 +100,11 @@ public class DefaultScriptConverter{
         return null;
     }
     private String argumentalConversion(String arg, Executors.Attribute type){
-        //TODO - implemtion of conversion
+
         return null;
     }
     private Map<Integer, String> argumentalConversion(List<EnhancedMap> partialMap){
-        //TODO - implemtion of conversion
+
         return null;
     }
 
@@ -111,23 +113,25 @@ public class DefaultScriptConverter{
         String part = map.get(currentGrammar);
         switch (currentGrammar){
             case OBJECT:
-                //TODO
+
             case STRING:
-                //TODO
+
             case BOOLEAN:
-                //TODO
+
             case DOUBLE:
-                //TODO
+
             case STRINGS:
-                //TODO
+
             case SEPARATION_COLON:
-                //TODO
+
             case ENCHANTMENTS:
-                //TODO
+
             case VARIABLE:
-                //TODO
+
             case LOCATION:
-                //TODO
+
+            default:
+
         }
         return null;
     }

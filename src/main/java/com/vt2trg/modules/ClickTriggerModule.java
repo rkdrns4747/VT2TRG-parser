@@ -63,7 +63,7 @@ public class ClickTriggerModule extends Module implements IModule {
             case "world":
                 String worldName = (String) args[1];
 
-                //TODO - implement world sectional convert
+
             case "location":
                 Location loc;
                 try {
@@ -71,18 +71,19 @@ public class ClickTriggerModule extends Module implements IModule {
                 } catch (ClassCastException e){
                     e.printStackTrace();
                 }
-                //TODO - implement world-coordinate sectional convert
+
             case "coordinates":
                 int x,y,z;
                 try{
                     x = (int) args[1];
                     y = (int) args[2];
                     z = (int) args[3];
-                    //TODO - implement coordinate sectional convert
+
                 }catch (ClassCastException e){
                     e.printStackTrace();
                 }
-
+            default:
+                //NONE
         }
     }
 }
