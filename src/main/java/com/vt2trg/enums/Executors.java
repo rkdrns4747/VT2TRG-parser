@@ -24,9 +24,9 @@ public enum Executors {
     INVALID("INVALID", false),
 
     QUIET("//@QUIET $0 $1", true, Attribute.STRING, Attribute.INT),
-    BROADCAST("#BROADCAST $0", false, Attribute.STRING),
-    PLAYER("#MESSAGE $0 $1", false, Attribute.STRING),
-    TELL("player($0).sendMessage($1)", false, Attribute.STRING, Attribute.STRING),
+    BROADCAST("#BROADCAST $0", false, Attribute.STRINGS),
+    PLAYER("#MESSAGE $0", false, Attribute.STRINGS),
+    TELL("player($0).sendMessage($1)", false, Attribute.STRING, Attribute.STRINGS),
     EXIT("#STOP", false),
     PAUSE("#WAIT $0", false, Attribute.INT),
     CALL("#CALL $0", false, Attribute.SEPARATION_COLON),

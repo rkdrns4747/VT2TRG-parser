@@ -25,7 +25,7 @@ import java.util.*;
 
 public class DefaultScriptConverter{
     private List<String> script;
-    private List<String> newScript;
+    private List<String> newScript = new ArrayList<>();
     private int ifCount = 0;
     public DefaultScriptConverter(List<String> script){
         this.script = script;
@@ -39,10 +39,10 @@ public class DefaultScriptConverter{
             if (!str.startsWith("@")) {
                 newScript.add("//" + str);
                 index++;
-                continue;
             } else {
+                String argOutput = "";
                 String[] parts = str.split(" ");
-                if (parts[0].matches("@IF | @OR | @AND")) {
+                if (parts[0].matches("@IF|@OR|@AND")) {
                     String[] args = (String[]) Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)).toArray();
                     String operator;
                     List<EnhancedMap> partialMap = new ArrayList<EnhancedMap>();
@@ -50,6 +50,15 @@ public class DefaultScriptConverter{
                         partialMap.add(new EnhancedMap(1, Executors.Attribute.fromAliases(args[0].charAt(0)), args[1]));
                         partialMap.add(new EnhancedMap(3, Executors.Attribute.fromAliases(args[0].charAt(0)), args[3]));
                         Map<Integer, String> result = argumentalConversion(partialMap);
+
+                        if(args[2].matches("=|==")){
+                            operator = "==";
+                        }else if(args[2].matches("<|>|!=|<=|>=")){
+                            operator = args[2];
+                        }else{
+                            operator = "UNKNOWN";
+                        }
+                        /*
                         switch (args[2]){
                             case "=": case "==":
                                 operator = "==";
@@ -58,21 +67,29 @@ public class DefaultScriptConverter{
                             default:
                                 operator = "";
                         }
-                        String argOutput = result.get(1) + " " + operator + " " + result.get(3);
-                    }
-                } else if (parts[0].equals("@SWITCH")) {
 
-                    //CATCH FIRST CASE
+                        does not work for some reason :(
+                         */
+                        argOutput = "#IF " + result.get(1) + " " + operator + " " + result.get(3);
+
+                    }else {
+                        //none ISB ed
+                        argOutput = argOutput;
+                    }
+                    newScript.add(argOutput);
+                } else if (parts[0].equals("@SWITCH")) {
+/*
+                    //CATCH FIRST CASE - TODO
                     String[] args = (String[]) Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)).toArray();
                     if(args[0].matches("[isb]")) {
                         String operator = "";
                         String result = argumentalConversion(args[1], Executors.Attribute.fromAliases(args[0].charAt(0)));
                         //String argOutput = result.get(1) + " " + operator + " " + result.get(3);
                     }
-
+*/
                 } else {
                     Executors executor;
-                    Map<Integer, Map<Executors.Attribute, String>> partialMap = new HashMap<>();
+                    List<EnhancedMap> partialMap = new ArrayList<EnhancedMap>();
                     try{
                         executor = Executors.valueOf(parts[0].replaceFirst("@", ""));
                     }catch (IllegalArgumentException | NullPointerException ex){
@@ -85,29 +102,48 @@ public class DefaultScriptConverter{
                         continue;
                     }
                     List<Executors.Attribute> grammar = executor.getGrammar();
+                    int strings = grammar.indexOf(Executors.Attribute.STRINGS);
                     for(int i = 1; i < parts.length; i++){
-                        Map<Executors.Attribute, String> temp = new HashMap<>();
-                        temp.put(grammar.get(i - 1), parts[i]);
-                        partialMap.put(i, temp);
-                        temp.clear();
+                        if(strings == (i - 1)){
+                            String appended = "";
+                            for(int k = i; k < parts.length; k++){
+                                appended = appended + parts[k] + (k == (parts.length - 1) ? "" : " ");
+                            }
+                            partialMap.add(new EnhancedMap(i, Executors.Attribute.STRINGS, appended));
+                            break;
+                        }
+                        partialMap.add(new EnhancedMap(i, grammar.get(i - 1), parts[i]));
                     }
-                    for (int now : partialMap.keySet()) {
-                        interpretGeneralScript(partialMap.get(now), parts);
+                    Map<Integer, String> result = argumentalConversion(partialMap);
+                    List<String> generalFormat = executor.getTrgFormat();
+                    String temp = "";
+                    List<String> finalResult = new ArrayList<>();
+                    for(String formatLine : generalFormat){
+                        for(int i : result.keySet()){
+                            temp = formatLine.replaceAll("\\$"+(i - 1), result.get(i));
+                        }
+                        finalResult.add(temp);
                     }
+                    newScript.addAll(finalResult);
                 }
             }
+            index++;
         }
-        return null;
+        return newScript;
     }
     private String argumentalConversion(String arg, Executors.Attribute type){
 
         return null;
     }
     private Map<Integer, String> argumentalConversion(List<EnhancedMap> partialMap){
-
-        return null;
+        Map<Integer, String> output = new HashMap<>();
+        for(EnhancedMap partial : partialMap){
+            output.put(partial.getIndex(), partial.getPart());
+        }
+        return output;
     }
 
+    /*
     private List<String> interpretGeneralScript(Map<Executors.Attribute, String> map, String[] whole){
         Executors.Attribute currentGrammar = (Executors.Attribute) map.keySet().toArray()[0];
         String part = map.get(currentGrammar);
@@ -135,6 +171,7 @@ public class DefaultScriptConverter{
         }
         return null;
     }
+    */
 
 
     @SuppressWarnings("deprecation")
@@ -166,7 +203,6 @@ public class DefaultScriptConverter{
         private Executors.Attribute getAttribute(){
             return attribute;
         }
-
         private String getPart(){
             return part;
         }

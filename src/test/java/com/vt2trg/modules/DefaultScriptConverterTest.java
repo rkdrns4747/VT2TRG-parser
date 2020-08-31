@@ -28,6 +28,29 @@ public class DefaultScriptConverterTest {
         ), DSC.convert()));
     }
 **/
+@Test
+public void testRandom() throws Exception {
+    List<String> testString = Arrays.asList(
+            "@PLAYER Hello sir",
+            "@PAUSE 3",
+            "@CMDOP spawn",
+            "@PLAYER now in spawn!!",
+            "@IF s abc = bcd",
+            "@PARTICLE HI 1,3,4",
+            "@PLAYER AA"
+    );
+    DefaultScriptConverter DSC = new DefaultScriptConverter(testString);
+/*
+    Assert.assertTrue(isEqual(Arrays.asList(
+            "#MESSAGE \"Hello sir\"",
+            "#WAIT 3",
+            "#CMDOP \"spawn\"",
+            "#MESSAGE \"now in spawn!!\""
+    ), DSC.convert()));*/
+    for(String line : DSC.convert()){
+        System.out.println(line);
+    }
+}
 
     private boolean isEqual(List<String> l1, List<String> l2){
         l1.removeAll(l2);
