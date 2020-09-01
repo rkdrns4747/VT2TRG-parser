@@ -37,7 +37,7 @@ public void testRandom() throws Exception {
             "@PLAYER now in spawn!!",
             "@IF s abc = bcd",
             "@PARTICLE HI 1,3,4",
-            "@PLAYER AA"
+            "@PLAYER <contains:346<health>144:im<playername>abc>"
     );
     DefaultScriptConverter DSC = new DefaultScriptConverter(testString);
 /*

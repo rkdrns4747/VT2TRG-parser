@@ -16,11 +16,12 @@
  *******************************************************************************/
 package com.vt2trg.modules;
 import com.vt2trg.enums.Executors;
+import com.vt2trg.enums.Placeholders;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.material.MaterialData;
+import sun.security.x509.AttributeNameEnumeration;
 
-import javax.print.DocFlavor;
 import java.util.*;
 
 public class DefaultScriptConverter{
@@ -91,12 +92,12 @@ public class DefaultScriptConverter{
                     Executors executor;
                     List<EnhancedMap> partialMap = new ArrayList<EnhancedMap>();
                     try{
-                        executor = Executors.valueOf(parts[0].replaceFirst("@", ""));
+                        executor = Executors.valueOf(parts[0].replaceFirst("@", "").toUpperCase());
                     }catch (IllegalArgumentException | NullPointerException ex){
                         executor = Executors.INVALID;
                     }
 
-                    if(executor == Executors.INVALID){
+                    if(executor == Executors.INVALID || executor.isDeprecated()){
                         newScript.add("//" + script.get(index));
                         index++;
                         continue;
@@ -131,11 +132,82 @@ public class DefaultScriptConverter{
         }
         return newScript;
     }
-    private String argumentalConversion(String arg, Executors.Attribute type){
+    private String argumentalConversion(EnhancedMap singleMap){
 
         return null;
     }
     private Map<Integer, String> argumentalConversion(List<EnhancedMap> partialMap){
+        //this part would be much complex
+        //only non-functional placeholder can be inside of functional placeholder's argument.
+        //hello<placeholder:<placeholder>:hi<placeholder>>abc<placeholder>kor
+        //I. split each placeholder and make array of parts like:
+        //   [hello, <placeholder:<placeholder>:hi<placeholder>>, abc, <placeholder>, kor] - COMPLETE!
+        for(EnhancedMap map : partialMap){
+            if(map.getPart().contains("<") && map.getPart().contains(">")){
+                //contains placeholder
+                String part = map.getPart();
+                List<String> splitedParts = new ArrayList<>();
+                int index = 0;
+                int startedFrom = 0;
+                if(!part.substring(0, part.indexOf('<')).equals(""))
+                    splitedParts.add(part.substring(0, part.indexOf('<'))); // got 'hello' part
+
+                int highlighter = 0;
+                inner:
+                for(char partChar : part.substring(part.indexOf('<')).toCharArray()){
+                    if(partChar == '<'){
+                        highlighter++;
+                        if(highlighter == 1){
+                            if (index  == 0) {
+                                index++;
+                                continue;
+                            }
+                            splitedParts.add(part.substring(part.indexOf('<')).substring(startedFrom, index));
+                            startedFrom = index;
+                        }
+
+                    }else if(partChar == '>'){
+                        highlighter--;
+                        if(highlighter == 0){ //now in  <placeholder:<placeholder>:hi<placeholder>>
+                            splitedParts.add(part.substring(part.indexOf('<')).substring(startedFrom, index + 1));
+                            startedFrom = index + 1;
+                        }
+                    }
+                    index++;
+                }
+                if(!part.substring(part.indexOf('<')).substring(startedFrom, index).equals(""))
+                    splitedParts.add(part.substring(part.indexOf('<')).substring(startedFrom, index));
+
+                index = 0;
+                startedFrom = 0;
+                Placeholders currentph;
+                for(String splitedPart : splitedParts){
+                    if(splitedPart.startsWith("<") && splitedPart.endsWith(">")){
+                        if(splitedPart.contains(":")){
+                            String result = handleFuntionalPH(splitedPart);
+                            //handling functional
+
+                        }else{
+                            //handling non-functional
+                            handleNonFunctionalPH(splitedPart);
+                        }
+                    }else{
+                        //handling general value
+
+                    }
+                }
+
+            }else{
+                //no placeholders
+                Executors.Attribute type = map.getAttribute();
+                if(!map.getPart().contains("$")){
+                    //no variable. just handling value type.
+                }else{
+                    String result = variableConversion(map.getPart(), type);
+                }
+
+            }
+        }
         Map<Integer, String> output = new HashMap<>();
         for(EnhancedMap partial : partialMap){
             output.put(partial.getIndex(), partial.getPart());
@@ -143,36 +215,88 @@ public class DefaultScriptConverter{
         return output;
     }
 
-    /*
-    private List<String> interpretGeneralScript(Map<Executors.Attribute, String> map, String[] whole){
-        Executors.Attribute currentGrammar = (Executors.Attribute) map.keySet().toArray()[0];
-        String part = map.get(currentGrammar);
-        switch (currentGrammar){
-            case OBJECT:
+    private List<String> handleNonFunctionalPH(String splitedPart){
 
-            case STRING:
+        return null;
+    }
 
-            case BOOLEAN:
+    private String handleFuntionalPH(String splitedPart){
+        int index = 0;
+        String[] placeholderArgs = splitedPart.substring(1, splitedPart.length() - 1).split(":");
+        Placeholders currentph = Placeholders.valueOf(placeholderArgs[0].toUpperCase() + "_FUNCTIONAL");
+        String[] args = Arrays.copyOfRange(placeholderArgs, 1, placeholderArgs.length);
+        List<Placeholders.Attribute> attributes = currentph.getGrammar();
+        Map<Integer, String> output = new HashMap<>();
+        for(int i = 0; i < args.length; i++){
+            String p = args[i];
+            Placeholders.Attribute a = attributes.get(i); // Attribute.B
+            int highlighter = 0;
+            int startedFrom = 0;
+            List<String> pR = new ArrayList<>();
+            StringBuilder kon = new StringBuilder();
+            if(p.contains("<") && p.contains(">")){
+                if(p.indexOf("<") != 0)
+                    pR.add(p.substring(0, p.indexOf("<")));
 
-            case DOUBLE:
+                char[] pCA = p.substring(p.indexOf("<")).toCharArray();
+                for(char c : pCA){
+                    if(c == '<'){
+                        highlighter++;
+                        if(highlighter == 1){
+                            if (index  == 0) {
+                                index++;
+                                continue;
+                            }
+                            pR.add(p.substring(p.indexOf('<')).substring(startedFrom, index));
+                            startedFrom = index;
+                        }
 
-            case STRINGS:
+                    }else if(c == '>'){
+                        highlighter--;
+                        if(highlighter == 0){ //now in  <placeholder:<placeholder>:hi<placeholder>>
+                            pR.add(p.substring(p.indexOf('<')).substring(startedFrom, index + 1));
+                            startedFrom = index + 1;
+                        }
+                    }
+                    index++;
+                }
+                if(!p.substring(p.indexOf('<')).substring(startedFrom, index).equals(""))
+                    pR.add(p.substring(p.indexOf('<')).substring(startedFrom, index));
 
-            case SEPARATION_COLON:
+                index = 0;
+                highlighter = 0;
+                startedFrom = 0;
+                if(a == Placeholders.Attribute.STRING){
+                    for (int z = 0; z < pR.size(); z++) {
+                        if (pR.get(z).startsWith("<") && pR.get(z).endsWith(">")) {
+                            kon.append(Placeholders.valueOf(pR.get(z).substring(1, pR.get(z).length() - 1).toUpperCase()).getTrgFormat());
+                        } else {
+                            kon.append("\"").append(pR.get(z)).append("\"");
+                        }
+                        kon.append(z == pR.size() - 1 ? "" : " + ");
+                    }
 
-            case ENCHANTMENTS:
-
-            case VARIABLE:
-
-            case LOCATION:
-
-            default:
-
+                }else if(a == Placeholders.Attribute.INT){
+                    //TO DO
+                }
+                String konR = kon.toString();
+                output.put(i, konR);
+                String result = currentph.getTrgFormat();
+                for(int y : output.keySet()) {
+                    result = result.replace("$"+y, output.get(i));
+                }
+                return result;
+            }else{
+                //just itself(maybe contains variable)
+            }
         }
         return null;
     }
-    */
 
+    private String variableConversion(String target, Executors.Attribute att){
+        //implemention
+        return null;
+    }
 
     @SuppressWarnings("deprecation")
     public static String convertMaterial(String value) {

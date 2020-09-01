@@ -23,7 +23,7 @@ import java.util.List;
 public enum Executors {
     INVALID("INVALID", false),
 
-    QUIET("//@QUIET $0 $1", true, Attribute.STRING, Attribute.INT),
+    QUIET("@QUIET $0 $1", true, Attribute.STRING, Attribute.INT),
     BROADCAST("#BROADCAST $0", false, Attribute.STRINGS),
     PLAYER("#MESSAGE $0", false, Attribute.STRINGS),
     TELL("player($0).sendMessage($1)", false, Attribute.STRING, Attribute.STRINGS),
@@ -35,42 +35,42 @@ public enum Executors {
     CMDOP("#CMDOP $0", false, Attribute.STRINGS),
     CMDCON("#CMDCON $0", false, Attribute.STRINGS),
     TOGGLEBLOCK(Arrays.asList("IF $1.getBlock() != null && $1.getBlock().getType().name() != \"AIR\" ",
-                              "    #SETBLOCK \"$0\", $1",
+                              "    #SETBLOCK \"$0\", location($1)",
                               "ELSE",
-                              "    #SETBLOCK \"AIR\", $1",
+                              "    #SETBLOCK \"AIR\", location($1)",
                               "ENDIF")
             , false, Attribute.SEPARATION_COLON, Attribute.LOCATION),
-    SETBLOCK("#SETBLOCK \"$0\", $1", false, Attribute.SEPARATION_COLON, Attribute.LOCATION),
-    GETBLOCK(Arrays.asList("IF $1.getBlock() != null && $1.getBlock().getType().name() != \"AIR\" ",
+    SETBLOCK("#SETBLOCK \"$0\", location($1)", false, Attribute.SEPARATION_COLON, Attribute.LOCATION),
+    GETBLOCK(Arrays.asList("IF location($1).getBlock() != null && location($1).getBlock().getType().name() != \"AIR\" ",
                            "    $0 = $1.getBlock().name()",
                            "ELSE",
                            "    $0 = \"AIR\"",
                            "ENDIF")
     ,false, Attribute.VARIABLE, Attribute.LOCATION),
     SMOKE(Arrays.asList("IMPORT org.bukkit.Effect",
-                        "$1.getWorld().playEffect($1, Effect.SMOKE, $0)")
+                        "location($1).getWorld().playEffect($1, Effect.SMOKE, $0)")
             , false, Attribute.DOUBLE, Attribute.LOCATION),
     FLAMES(Arrays.asList("IMPORT org.bukkit.Effect",
-                         "$1.getWorld().playEffect($1, Effect.MOBSPAWNER_FLAMES, $0)")
+                         "location($1).getWorld().playEffect(location($1), Effect.MOBSPAWNER_FLAMES, $0")
             , false, Attribute.DOUBLE, Attribute.LOCATION),
     POOF(Arrays.asList("IMPORT org.bukkit.Effect",
-                         "$1.getWorld().playEffect($1, Effect.EXTINGUISH, $0)")
+                         "location($1).getWorld().playEffect(location($1), Effect.EXTINGUISH, $0)")
             , false, Attribute.DOUBLE, Attribute.LOCATION),
-    TP("#TP $0", false, Attribute.LOCATION),
+    TP("#TP location($0)", false, Attribute.LOCATION),
     LIGHTNING(Arrays.asList("IF $0",
-                            "    $1.getWorld().strikeLightning($1)",
+                            "    location($1).getWorld().strikeLightning(location($1))",
                             "ELSE",
-                            "    $1.getWorld().strikeLightningEffect($1)",
+                            "    location($1).getWorld().strikeLightningEffect(location($1))",
                             "ENDIF")
             ,false, Attribute.BOOLEAN, Attribute.LOCATION),
     ENTITY(Arrays.asList("FOR i = 0:$1",
-                         "    #SPAWN $2 $0",
+                         "    #SPAWN location($2) $0",
                          "ENDFOR",
                          "i = null")
             ,false, Attribute.STRING, Attribute.INT, Attribute.LOCATION),
     DROPITEM(Arrays.asList("str = $0",
                            "IF $2 == \"NONE\"",
-                           "    #DROPITEM item(str.toUpperCase(), $1), $3",
+                           "    #DROPITEM item(str.toUpperCase(), $1), location($3)",
                            "    str = null",
                            "ELSE",
                            "    IMPORT org.bukkit.enchantments.Enchantment",
@@ -81,7 +81,7 @@ public enum Executors {
                            "    ENDFOR",
                            "    item =  item(str.toUpperCase(), $1)",
                            "    item.addUnsafeEnchantments(enchMap)",
-                           "    #DROPITEM item, $3",
+                           "    #DROPITEM item, location($3)",
                            "    str = null; enchMap = null; encs = null; item = null;",
                             "ENDIF")
             ,false, Attribute.STRING, Attribute.INT, Attribute.ENCHANTMENTS, Attribute.LOCATION),
@@ -94,39 +94,39 @@ public enum Executors {
                                  "$0 = count",
                                  "count = null; e = null;")
             , false, Attribute.VARIABLE, Attribute.STRING, Attribute.DOUBLE),
-    GETLIGHT("$0 = $1.getBlock().getLightLevel()", false, Attribute.VARIABLE, Attribute.LOCATION),
+    GETLIGHT("$0 = location($1).getBlock().getLightLevel()", false, Attribute.VARIABLE, Attribute.LOCATION),
     //in this case, SIGNTEXT's location will be only 'a,b,c,... logic.
-    SIGNTEXT("#SIGNEDIT $1, $2, $0", false, Attribute.LOCATION, Attribute.INT, Attribute.STRINGS),
-    SOUND("#SOUNDALL $1, $0, 5.0, 5.0", false, Attribute.STRING, Attribute.LOCATION),
-    SOUNDEX("#SOUNDALL $3, $0, $1, $2", false, Attribute.STRING, Attribute.DOUBLE, Attribute.DOUBLE, Attribute.LOCATION),
-    EXPLOSION("#EXPLOSION $1.getWorld().getName(), $1.getX(), $1.getY(), $1.getZ(), $0", false, Attribute.DOUBLE, Attribute.LOCATION),
+    SIGNTEXT("#SIGNEDIT $1, $2, location($0)", false, Attribute.LOCATION, Attribute.INT, Attribute.STRINGS),
+    SOUND("#SOUNDALL location($1), $0, 5.0, 5.0", false, Attribute.STRING, Attribute.LOCATION),
+    SOUNDEX("#SOUNDALL location($3), $0, $1, $2", false, Attribute.STRING, Attribute.DOUBLE, Attribute.DOUBLE, Attribute.LOCATION),
+    EXPLOSION("#EXPLOSION $1.getWorld().getName(), location($1).getX(), location($1)1.getY(), location($1).getZ(), $0", false, Attribute.DOUBLE, Attribute.LOCATION),
 
     //===========================
 
-    FIREWORK("//@FIREWRK $0 $1 $2", true, Attribute.STRING, Attribute.STRING, Attribute.LOCATION),
+    FIREWORK("@FIREWRK $0 $1 $2", true, Attribute.STRING, Attribute.STRING, Attribute.LOCATION),
     PARTICLE(Arrays.asList("IMPORT org.bukkit.Effect",
                            "IMPORT org.bukkit.Material",
                            "str = $0",
-                           "$1.getWorld().playEffect($1, Effect.STEP_SOUND, Material.valueOf(str.toUpperCase()).getId())",
+                           "location($1).getWorld().playEffect($1, Effect.STEP_SOUND, Material.valueOf(str.toUpperCase()).getId())",
                            "str = null")
             , false, Attribute.STRING, Attribute.LOCATION),
-    FALLINGBLOCK("#FALLINGBLOCK $0, $1", false, Attribute.STRING, Attribute.LOCATION),
-    SETBLOCKSAFE("#SETBLOCK \"$0\", $1", false, Attribute.SEPARATION_COLON, Attribute.LOCATION),
+    FALLINGBLOCK("#FALLINGBLOCK $0, location($1)", false, Attribute.STRING, Attribute.LOCATION),
+    SETBLOCKSAFE("#SETBLOCK \"$0\", location($1)", false, Attribute.SEPARATION_COLON, Attribute.LOCATION),
     WORLDTP("player($0).teleport(location($1, player($0).getX(), player($0).getY(), player($0).getZ(), player($0).getYaw(), player($0).getPitch()))", false, Attribute.STRING, Attribute.STRING),
     CLEARCHAT("#CLEARCHAT player($0)", false, Attribute.STRING),
-    FORK("//@FORK", true),
+    FORK("@FORK", true),
     SETVELOCITY(Arrays.asList("IMPORT org.bukkit.Vector",
                               "player($0).setVelocity(Vector($1, $2, $3))")
             , false, Attribute.STRING, Attribute.INT, Attribute.INT, Attribute.INT),
-    OPENINV("//@OPENINV $0", true, Attribute.STRING),
+    OPENINV("@OPENINV $0", true, Attribute.STRING),
     CLOSEINV("player($0).closeInventory()", false, Attribute.STRING),
-    MODIFYPLAYER("//@MODIFYPLAYER $1 $2 $3", true, Attribute.STRING, Attribute.STRING, Attribute.OBJECT),
+    MODIFYPLAYER("@MODIFYPLAYER $1 $2 $3", true, Attribute.STRING, Attribute.STRING, Attribute.OBJECT),
 
     //==============================
 
-    SETMOTD("//@SETMOTD $0", true, Attribute.STRINGS),
-    SETCANCELLED("//@SETCANCELLED $0 $1", true, Attribute.STRING, Attribute.BOOLEAN),
-    WORLDEDIT("//@WORLDEDIT $1 $2", true, Attribute.STRING, Attribute.LOCATION),
+    SETMOTD("@SETMOTD $0", true, Attribute.STRINGS),
+    SETCANCELLED("@SETCANCELLED $0 $1", true, Attribute.STRING, Attribute.BOOLEAN),
+    WORLDEDIT("@WORLDEDIT $1 $2", true, Attribute.STRING, Attribute.LOCATION),
     WHILE("WHILE $1 $2 $3", false, Attribute.STRING /* NULLABLE? */, Attribute.OBJECT, Attribute.OPERATOR, Attribute.OBJECT),
     ENDWHILE("ENDWHILE", false),
     LOOP("FOR vt2trgLOOP_count = 0:$0", false, Attribute.INT),
@@ -154,6 +154,7 @@ public enum Executors {
 
     private List<String> trgFormat;
     private List<Attribute> grammar;
+    private boolean isDeprecated;
 
     public List<String> getTrgFormat()
     {
@@ -162,16 +163,19 @@ public enum Executors {
     public List<Attribute> getGrammar(){
         return this.grammar;
     }
+    public boolean isDeprecated() {return this.isDeprecated; }
 
     private Executors(String trgFormat, boolean deprecated,  Attribute... args)
     {
         this.grammar = Arrays.asList(args);
         this.trgFormat = Collections.singletonList(trgFormat);
+        this.isDeprecated = deprecated;
     }
     private Executors(List<String> trgFormat, boolean deprecated,  Attribute... args)
     {
         this.grammar = Arrays.asList(args);
         this.trgFormat = trgFormat;
+        this.isDeprecated = deprecated;
     }
     public enum Attribute{
         OBJECT, //when return type isn't specified, usually used in deprecated

@@ -48,6 +48,7 @@ public enum Placeholders {
     public List<Placeholders.Attribute> getGrammar(){
         return this.grammar;
     }
+    public String getTrgFormat() {return this.trgFormat; }
 
     private Placeholders(String trgFormat, boolean deprecated, Attribute... args)
     {
