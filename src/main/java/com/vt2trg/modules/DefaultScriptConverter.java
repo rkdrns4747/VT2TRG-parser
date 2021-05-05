@@ -73,9 +73,11 @@ public class DefaultScriptConverter{
                         nonSpacedInterpretation(solidGrammar.get(entry.getKey()), solidParameters[entry.getKey()]);
                     }
                 }else if(grammar.contains(Executors.Attribute.LOCATION) && operator != Executors.SIGNTEXT /* it already treated on STRINGS */){
-                    
+                    //TODO - LOCATION treatment
                 }else{
-                    
+                    List<String> at_all = new ArrayList<>();
+                    //TODO - He said I can get paid but still there was no
+                             return at_all;
                 }
                 /*
                 String[] parts = str.split(" ");
@@ -165,7 +167,7 @@ public class DefaultScriptConverter{
         // location grammar also can be similar with STRINGS if it is located one the last of parameters... so should be exceptionally treated like STRINGS.
 
         char[] seq = part.toCharArray();
-
+        //TODO - implement non-spaced interpretation.
         for (char c : seq) {
 
         }
