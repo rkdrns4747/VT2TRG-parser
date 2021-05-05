@@ -23,6 +23,8 @@ import org.bukkit.material.MaterialData;
 import sun.security.x509.AttributeNameEnumeration;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DefaultScriptConverter{
     private List<String> script;
@@ -40,9 +42,44 @@ public class DefaultScriptConverter{
             if (!str.startsWith("@")) {
                 newScript.add("//" + str);
                 index++;
+                continue;
             } else {
+                //If starts with @
                 String argOutput = "";
+                String operator_str = str.substring(1, !str.contains(" ") ? str.length() : str.indexOf(" ") - 1).toUpperCase();
+                if(!Executors.exists(operator_str)){
+                    //If Executor does not exist
+                    newScript.add("//" + str);
+                    index++;
+                    continue;
+                }
+                Executors operator = Executors.valueOf(operator_str);
+                List<Executors.Attribute> grammar = operator.getGrammar();
+                if(grammar.contains(Executors.Attribute.STRINGS)){
+                    //if contains STRINGS
+                    HashMap<Integer, Executors.Attribute> solidGrammar = new HashMap<>();
+                    for(int i = 0; i < grammar.indexOf(Executors.Attribute.STRINGS); i++){
+                        solidGrammar.put(i, grammar.get(i));
+                    }
+                    String[] solidParameters = str.substring(!str.contains(" ") ? str.length() : str.indexOf(" ") + 1, grammar.indexOf(Executors.Attribute.STRINGS)).split(" "); //solid part
+                    if(solidGrammar.size() != solidParameters.length){
+                        //solid part's parameter amount is not matched
+                        newScript.add("//" + str);
+                        index++;
+                        continue;
+                    }
+                    //interpret solid part first
+                    for(Map.Entry<Integer, Executors.Attribute> entry : solidGrammar.entrySet()){
+                        nonSpacedInterpretation(solidGrammar.get(entry.getKey()), solidParameters[entry.getKey()]);
+                    }
+                }else if(grammar.contains(Executors.Attribute.LOCATION) && operator != Executors.SIGNTEXT /* it already treated on STRINGS */){
+                    
+                }else{
+                    
+                }
+                /*
                 String[] parts = str.split(" ");
+                if(parts[0])
                 if (parts[0].matches("@IF|@OR|@AND")) {
                     String[] args = (String[]) Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)).toArray();
                     String operator;
@@ -59,18 +96,6 @@ public class DefaultScriptConverter{
                         }else{
                             operator = "UNKNOWN";
                         }
-                        /*
-                        switch (args[2]){
-                            case "=": case "==":
-                                operator = "==";
-                            case "<": case ">": case "!=": case "<=": case ">=":
-                                operator = args[2];
-                            default:
-                                operator = "";
-                        }
-
-                        does not work for some reason :(
-                         */
                         argOutput = "#IF " + result.get(1) + " " + operator + " " + result.get(3);
 
                     }else {
@@ -79,15 +104,7 @@ public class DefaultScriptConverter{
                     }
                     newScript.add(argOutput);
                 } else if (parts[0].equals("@SWITCH")) {
-/*
-                    //CATCH FIRST CASE - TODO
-                    String[] args = (String[]) Arrays.asList(Arrays.copyOfRange(parts, 1, parts.length)).toArray();
-                    if(args[0].matches("[isb]")) {
-                        String operator = "";
-                        String result = argumentalConversion(args[1], Executors.Attribute.fromAliases(args[0].charAt(0)));
-                        //String argOutput = result.get(1) + " " + operator + " " + result.get(3);
-                    }
-*/
+                 
                 } else {
                     Executors executor;
                     List<EnhancedMap> partialMap = new ArrayList<EnhancedMap>();
@@ -127,15 +144,36 @@ public class DefaultScriptConverter{
                     }
                     newScript.addAll(finalResult);
                 }
+        */
             }
             index++;
         }
         return newScript;
     }
-    private String argumentalConversion(EnhancedMap singleMap){
 
-        return null;
+    private String nonSpacedInterpretation(Executors.Attribute grammar, String part){
+        //     < , > , : , $ , .
+        // if the attribute is kind of value,
+        // < is start of placeholder
+        // > is end of placeholder
+        // : is start of a placeholder's parameter
+        // $ is start of a variable
+        // . is variable separator
+        //
+        // HOWEVER, this is also flexible based on grammar. So it's better to check grammar first.
+        // ALERT, @SIGNTEXT contains location ONE THE FIRST OF parameter, which means its logic is limited to 'x,y,z'
+        // location grammar also can be similar with STRINGS if it is located one the last of parameters... so should be exceptionally treated like STRINGS.
+
+        char[] seq = part.toCharArray();
+
+        for (char c : seq) {
+
+        }
+
+        return "a";
     }
+
+
     private Map<Integer, String> argumentalConversion(List<EnhancedMap> partialMap){
         //this part would be much complex
         //only non-functional placeholder can be inside of functional placeholder's argument.
@@ -143,9 +181,33 @@ public class DefaultScriptConverter{
         //I. split each placeholder and make array of parts like:
         //   [hello, <placeholder:<placeholder>:hi<placeholder>>, abc, <placeholder>, kor] - COMPLETE!
         for(EnhancedMap map : partialMap){
+            //variable conversion should be first.
+            String part = map.getPart();
+            if(part.contains("$")){
+                //on this case, we have some available situation
+                // $<placeholder>.abc
+                // <var:$abc.def>
+                // $abc.def
+                // $abc.<var:$abc>
+                if(part.startsWith("$")){
+                    String varpart = part.substring(1);
+                    map.setPart("{" + varpart + "}"); // {abc.<var:$abc>}
+                }
+
+//                if(part.matches("[<var:[a-zA-Z$.<>:]>]*")){
+//                    Pattern pattern = Pattern.compile("[<var:[a-zA-Z$.<>:]>]");
+//                    Matcher matcher = pattern.matcher(part);
+//                    StringBuilder sb = new StringBuilder();
+//                    while(matcher.find())
+//                    {
+//                        sb.append(matcher.group());
+//                    }
+//                    System.out.println(sb);
+//                }
+            }
             if(map.getPart().contains("<") && map.getPart().contains(">")){
                 //contains placeholder
-                String part = map.getPart();
+
                 List<String> splitedParts = new ArrayList<>();
                 int index = 0;
                 int startedFrom = 0;
@@ -215,9 +277,9 @@ public class DefaultScriptConverter{
         return output;
     }
 
-    private List<String> handleNonFunctionalPH(String splitedPart){
-
-        return null;
+    private String handleNonFunctionalPH(String splitedPart){
+        Placeholders ph = Placeholders.valueOf(splitedPart.substring(1, splitedPart.length() - 1).toUpperCase());
+        return ph.getTrgFormat();
     }
 
     private String handleFuntionalPH(String splitedPart){
@@ -330,5 +392,6 @@ public class DefaultScriptConverter{
         private String getPart(){
             return part;
         }
+        private void setPart(String part) {this.part = part;}
     }
 }

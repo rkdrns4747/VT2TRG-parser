@@ -100,6 +100,9 @@ public enum Executors {
     SOUND("#SOUNDALL location($1), $0, 5.0, 5.0", false, Attribute.STRING, Attribute.LOCATION),
     SOUNDEX("#SOUNDALL location($3), $0, $1, $2", false, Attribute.STRING, Attribute.DOUBLE, Attribute.DOUBLE, Attribute.LOCATION),
     EXPLOSION("#EXPLOSION $1.getWorld().getName(), location($1).getX(), location($1)1.getY(), location($1).getZ(), $0", false, Attribute.DOUBLE, Attribute.LOCATION),
+    IF("IF $0", false),
+    AND(" && $0", false),
+    OR(" || $0", false),
 
     //===========================
 
@@ -135,19 +138,19 @@ public enum Executors {
     //==============================
 
 
-    SETINT("{\"$0\"} = $1", false, Attribute.VARIABLE, Attribute.INT),
-    ADDINT("{\"$0\"} = {\"$0\"} + $1", false, Attribute.VARIABLE, Attribute.INT),
-    SUBINT("{\"$0\"} = {\"$0\"} - $1", false, Attribute.VARIABLE, Attribute.INT),
-    MULINT("{\"$0\"} = {\"$0\"} * $1", false, Attribute.VARIABLE, Attribute.INT),
-    DIVINT("{\"$0\"} = {\"$0\"} / $1", false, Attribute.VARIABLE, Attribute.INT),
+    SETINT("{$0} = $1", false, Attribute.VARIABLE, Attribute.INT),
+    ADDINT("{$0} = {$0} + $1", false, Attribute.VARIABLE, Attribute.INT),
+    SUBINT("{$0} = {$0} - $1", false, Attribute.VARIABLE, Attribute.INT),
+    MULINT("{$0} = {$0} * $1", false, Attribute.VARIABLE, Attribute.INT),
+    DIVINT("{$0} = {$0} / $1", false, Attribute.VARIABLE, Attribute.INT),
     GETSTRLEN(Arrays.asList("str = $1",
-                            "{\"$0\"} = str.length()",
+                            "{$0} = str.length()",
                             "str = null")
             , false, Attribute.VARIABLE, Attribute.STRING),
-    SETSTR("{\"$0\"} = $1", false, Attribute.VARIABLE, Attribute.STRINGS),
-    ADDSTR("{\"$0\"} = {\"$0\"} + $1", false, Attribute.VARIABLE, Attribute.STRINGS),
-    SETBOOL("{\"$0\"} = $1", false, Attribute.VARIABLE, Attribute.BOOLEAN),
-    DELVAR("{\"$0\"} = null", false, Attribute.STRING /* NULLABLE? */, Attribute.VARIABLE);
+    SETSTR("{$0} = $1", false, Attribute.VARIABLE, Attribute.STRINGS),
+    ADDSTR("{$0} = {$0} + $1", false, Attribute.VARIABLE, Attribute.STRINGS),
+    SETBOOL("{$0} = $1", false, Attribute.VARIABLE, Attribute.BOOLEAN),
+    DELVAR("{$0} = null", false, Attribute.STRING /* NULLABLE? */, Attribute.VARIABLE);
 
     //==============================
 
@@ -164,6 +167,14 @@ public enum Executors {
         return this.grammar;
     }
     public boolean isDeprecated() {return this.isDeprecated; }
+    public static boolean exists(String operator_str){
+        for(Executors executor : Executors.values()){
+            if(Executors.valueOf(operator_str.toUpperCase()) == executor){
+                return true;
+            }
+        }
+        return  false;
+    }
 
     private Executors(String trgFormat, boolean deprecated,  Attribute... args)
     {
